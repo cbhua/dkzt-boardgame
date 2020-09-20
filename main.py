@@ -194,16 +194,58 @@ def main():
             # This part is for the passenger turn
             print("Which type of victory do you want to preclaim? [0 - Positive victory; 1 - Negative victory]")
             victory_choose = int(input())
-            if (victor_choose):
+            if (victory_choose == 1):
                 # Negative victory
                 print("Choose passengers you think they will win: [ index without split ]")
                 win_passengers = input()
                 
+                ralics = 0
+                for i in range(len(win_passengers)):
+                    if passengers[win_passengers[i]].association == passengers[turn].association:
+                        print("FALIED TO PRECLIME THE SUCCESS! THE PASSENGER", i+1, "IS IN YOUR ASSOCIATION!")
+                        print("THE ASSOCIATION", associations_map[passengers[turn].association], "LOST!")
+                        break
+                    if (passengers[turn].association == 0):
+                        ralics += passengers[win_passengers[i]].object.count(SecretBagKey())
+                    else:
+                        ralics += passengers[win_passengers[i]].object.count(SecretBagGoblet())
+                if (passengers[turn].association == associations[5]):
+                    if (ralics >= 3):
+                        print("SUCCESS TO PRECLIME THE SUCCESS! THE ASSOCIATION", associations_map[passengers[turn].association], "WIN!")
+                    else:
+                        print("FAILED TO PRECLIME THE SUCCESS! THE ASSOCIATION", associations_map[passengers[turn].association], "LOST!")
+                else:
+                    if (ralics >= 2):
+                        print("SUCCESS TO PRECLIME THE SUCCESS! THE ASSOCIATION", associations_map[passengers[turn].association], "WIN!")
+                    else:
+                        print("FAILED TO PRECLIME THE SUCCESS! THE ASSOCIATION", associations_map[passengers[turn].association], "LOST!")
+            else:
+                # Positive victory
+                print("Choose passengers you think they will be your partner: [ index without split ]")
+                win_passengers = input()
 
-
+                ralics = 0
+                for i in range(len(win_passengers)):
+                    if passengers[win_passengers[i]].association != passengers[turn].association:
+                        print("FALIED TO PRECLIME THE SUCCESS! THE PASSENGER", i+1, "IS NOT YOUR ASSOCIATION!")
+                        print("THE ASSOCIATION", associations_map[passengers[turn].association], "LOST!")
+                        break
+                    if (passengers[turn].association == 0):
+                        ralics += passengers[win_passengers[i]].object.count(SecretBagGoblet())
+                    else:
+                        ralics += passengers[win_passengers[i]].object.count(SecretBagKey())
+                if (passengers[turn].association == associations[5]):
+                    if (ralics >= 2):
+                        print("SUCCESS TO PRECLIME THE SUCCESS! THE ASSOCIATION", associations_map[passengers[turn].association], "WIN!")
+                    else:
+                        print("FAILED TO PRECLIME THE SUCCESS! THE ASSOCIATION", associations_map[passengers[turn].association], "LOST!")
+                else:
+                    if (ralics >= 3):
+                        print("SUCCESS TO PRECLIME THE SUCCESS! THE ASSOCIATION", associations_map[passengers[turn].association], "WIN!")
+                    else:
+                        print("FAILED TO PRECLIME THE SUCCESS! THE ASSOCIATION", associations_map[passengers[turn].association], "LOST!")
 
         num_round += 1
 
 #TODO: exchange function
 #TODO: rob function
-# Declear the public part and passenger part
