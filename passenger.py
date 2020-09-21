@@ -28,6 +28,3 @@ class Passenger:
 
     def check_association(self, passenger_num):
         self.association_checked.append(passenger_num)
-
-    def print_object(self):
-        print("objects")

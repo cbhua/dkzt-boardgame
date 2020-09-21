@@ -60,7 +60,7 @@ def main():
         object_table = PrettyTable()
         object_table.field_names = ["Index", "Name of Object", "Describe"]
         for i in range(len(passengers[turn].object)):
-            object_table.add_row([i + 1, passengers[turn].object[i].get_name(), passengers[turn].object[i].get_describe()])
+            object_table.add_row([i + 1, passengers[turn].object[i].get_name(), passengers[turn].object[i].get_description()])
         print(status_table)
 
         print("What going to do:\n1 - Trade\n2 - Duel\n3 - Proclaim the victory\n0 - Skip")
@@ -86,7 +86,7 @@ def main():
                 object_table = PrettyTable()
                 object_table.field_names = ["Index", "Name of Object", "Describe"]
                 for i in range(len(passengers[passenger_choose - 1].object)):
-                    object_table.add_row([i + 1, passengers[passenger_choose - 1].object[i].get_name(), passengers[passenger_choose - 1].object[i].get_describe()])
+                    object_table.add_row([i + 1, passengers[passenger_choose - 1].object[i].get_name(), passengers[passenger_choose - 1].object[i].get_description()])
                 print(status_table)
                 
                 trade_choose = int(input())
@@ -167,7 +167,7 @@ def main():
                     object_table = PrettyTable()
                     object_table.field_names = ["Index", "Name of Object", "Describe"]
                     for i in range(len(passengers[passenger_choose - 1].object)):
-                        object_table.add_row([i + 1, passengers[passenger_choose - 1].object[i].get_name(), passengers[passenger_choose - 1].object[i].get_describe()])
+                        object_table.add_row([i + 1, passengers[passenger_choose - 1].object[i].get_name(), passengers[passenger_choose - 1].object[i].get_description()])
                     print(status_table)
                     print("Which one you want to get? [ index ]")
                     rub_choose = int(input())
