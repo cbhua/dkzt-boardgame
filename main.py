@@ -48,20 +48,25 @@ def show_status(turn, passengers):
             profession_temp = passengers[i].profession.get_name()
         else:
             profession_temp = 'Unknown'
-        status_table.add_row([i + 1, association_temp, profession_temp, passengers[i].num_object()])
+        status_table.add_row([i, association_temp, profession_temp, passengers[i].num_object()])
 
     print(status_table)
 
 
-def show_objects(passenger):
+def objects_show(passenger):
     object_table = PrettyTable()
     object_table.title = 'Your Objects'
     object_table.field_names = ['Index', 'Name of Object', 'Describe']
 
     for i in range(len(passenger.object)):
-        object_table.add_row([i + 1, passenger.object[i].get_name(), passenger.object[i].get_description()])
+        object_table.add_row([i, passenger.object[i].get_name(), passenger.object[i].get_description()])
     
     print(object_table)
+
+
+def objects_get(passenger, objects):
+    passenger.object.append(objects[-1])
+    objects.pop()
 
 
 def input_check(input_content, input_space):
@@ -78,13 +83,14 @@ def trade_initiate():
     object_choose = int(input())
     return passenger_choose, object_choose
 
-def trade_query(turn, passenger_choose, passengers):
-    print('[Ask passenger', passenger_choose, '] \nPassenger', turn + 1, 'want to trade with you by', passengers[turn].object[object_choose - 1].get_name(), '.Do you agree? [y/n]')
+
+def trade_query(turn, passenger_choose, object_choose, passengers):
+    print('[Ask passenger', passenger_choose, '] \nPassenger', turn, 'want to trade with you by', passengers[turn].object[object_choose].get_name(), '.Do you agree? [y/n]')
     trade_accept = input()
 
     if (trade_accept == 'y'):
         print('Here is what you have, which one do you want to give back? [Object Number]')
-        show_objects(passengers[passenger_choose])
+        objects_show(passengers[passenger_choose])
         trade_choose = int(input())
         print('Do you want to active the effect? [y/n]')
         active_choose = input()
@@ -101,20 +107,65 @@ def trade(trade_initiator, trade_recipient, initiator_object_num, recipient_obje
     del passengers[trade_initiator].object[initiator_object_num]
     del passengers[trade_recipient].object[recipient_object_num]
 
-    # if (accept_choose == 'y'):
-    #     print('[Back to passenger] \nThe passenger accepted your trade, you got: ', passengers[passenger_choose - 1].object[trade_choose - 1].get_name()) 
-    #     if (active_choose == 'y'):
-    #         print('The passenger will active the effect of it')
-    #         # Active function
-    #     print('Are you going to active your object's effect? [y/n]')
-    #     active_choose = input()
-    #     if (active_choose == 'y'):
-    #         print('You are going to active your object's effect.')
-    #         # Active function
-        
-    # else:
-    #     print('Your trade request is rejected by the passenger. ')
 
+def duel_initiate():
+    print('You are going to duel with someone, who are you want to duel with? [Passenger Number]')
+    passenger_choose = int(input())
+    return passenger_choose
+
+
+def duel(duel_attacker, duel_defender, passnegers):
+    print('Passenger {} is going to duel with passenger {}'.format(duel_attacker, duel_defender))
+    attack = 1
+    defend = 1
+    if(duel_attacker != len(passnegers)):
+        for i in range(duel_attacker, len(passnegers)):
+            if (i == duel_defender): continue
+            vote = duel_vote(i)
+            if (vote == 1):
+                attack += 1
+            elif (vote == 2):
+                defend += 1
+            else:
+                pass
+    for i in range (0, duel_attacker):
+        if (i == duel_defender): continue
+        vote = duel_vote(i)
+        if (vote == 1):
+            attack += 1
+        elif (vote == 2):
+            defend += 1
+        else:
+            pass
+    if (attack > defend):
+        return 1
+    elif (attack < defend):
+        return 2
+    else:
+        return 0
+
+
+def duel_vote(passenger):
+    print('Ask passenger {}.Who are you going to fight for? [1 - Attacker; 2 - Defender; 0 - Skip]'.format(passenger))
+    vote = int(input())
+    return vote
+    
+
+def duel_victory(duel_winner, duel_losser, passengers):
+    associations_map = ['Red', 'Blue']
+    print('The winner is {}, what are you going to do? [1 - Check the association and profession; 2 - Get an object]'.format(duel_winner))
+    victory_choose = int(input())
+    if (victory_choose == 1):
+        print('Passenger {}\'s association is {}'.format(duel_losser, associations_map[passengers[duel_losser].association]))
+        print('Passenger {}\'s profession is {}'.format(duel_losser, passengers[duel_losser].profession))
+        passengers[duel_winner].check_association(duel_losser)
+        passengers[duel_winner].check_profession(duel_losser)
+    if (victory_choose == 2):
+        print('Passenger {} have such objects, which do you want? [Object Number]'.format(duel_losser))
+        objects_show(passengers[duel_losser])
+        object_choose = int(input())
+        passengers[duel_winner].object.append(passengers[duel_losser].object[object_choose])
+        del passengers[duel_losser].object[object_choose]
 
 
 def main():
@@ -128,94 +179,31 @@ def main():
         print('Now is the turn for Passenger', (turn + 1))
 
         show_status(turn, passengers)
-        show_objects(passengers[turn])
+        objects_show(passengers[turn])
 
         print('What are you going to do? [1 - Trade; 2 - Duel; 3 - Proclaim the victory; 0 - Skip]')
         choose = input_check(input(), ['1', '2', '3', '0'])
 
         if (choose == '1'):
             passenger_choose, object_choose = trade_initiate()
-            trade_accpet, trade_choose, active_choose = trade_query(trun, passenger_choose, passengers)
+            trade_accpet, trade_choose, active_choose = trade_query(turn, passenger_choose, object_choose, passengers)
             if (trade_accpet == 'y'):
                 print('Your trade query has been accepted.')
-                trade(trun, passenger_choose - 1, object_choose - 1, trade_choose - 1, passengers)
+                trade(turn, passenger_choose - 1, object_choose - 1, trade_choose - 1, passengers)
                 # TODO: Active the effect
             else:
                 print('Your trade query has been rejected.')
 
         elif (choose == '2'):
-            # Duel
-            print('You are going to duel with someone, who are you want to duel with? ( Please input 1 ~ 5 )')
-            passenger_choose = int(input())
-
-            # This part is for public
-            print('Passenger', turn + 1, 'is going to duel with Passenger', passenger_choose)
-            attack = 1
-            defend = 1
-            for i in range(turn, 5):
-                if(i == passenger_choose - 1):
-                    continue
-                print('Passenger', i, 'Who will you fight for? [ 1 - attack; 2 - defend; 0 - give up ]')
-                stand_by = int(input())
-                if(stand_by == 1):
-                    print('Passenger', i, 'Will fight for the attacker.')
-                    attack += 1
-                elif(stand_by == 2):
-                    print('Passenger', i, 'Will fight for the defender.')
-                    defend += 1
-                else:
-                    print('Passenger', i, 'Give up.')
-                print('Now the situation is attack:', attack, '; defend:', defend)
-            for i in range(0, turn):
-                if(i == passenger_choose - 1):
-                    continue
-                print('Passenger', i, 'Who will you fight for? [ 1 - attack; 2 - defend; 0 - give up ]')
-                stand_by = int(input())
-                if(stand_by == 1):
-                    print('Passenger', i, 'Will fight for the attacker.')
-                    attack += 1
-                elif(stand_by == 2):
-                    print('Passenger', i, 'Will fight for the defender.')
-                    defend += 1
-                else:
-                    print('Passenger', i, 'Give up.')
-                print('Now the situation is attack:', attack, '; defend:', defend)
-            print('Anyone can use your weapons to help them.')
-            # TODO: use weapon
-
-            print('The duel result is attack:', attack, 'v.s. defend:', defend)
-            if (attack > defend):
-                print('Attacker WIN! Enjoy your victory!')
-
-                # This part is for the attacker
-                print('What are you going to do? [ 0 - Check the association and profession; 1 - Get an object]')
-                # TODO: add a check for only one object
-                victor_choose = int(input())
-                if (victor_choose):
-                    print('The passenger's objects are as following')
-                    object_table = PrettyTable()
-                    object_table.field_names = ['Index', 'Name of Object', 'Describe']
-                    for i in range(len(passengers[passenger_choose - 1].object)):
-                        object_table.add_row([i + 1, passengers[passenger_choose - 1].object[i].get_name(), passengers[passenger_choose - 1].object[i].get_description()])
-                    print(status_table)
-                    print('Which one you want to get? [ index ]')
-                    rub_choose = int(input())
-                    passengers[turn].object.append(passengers[passenger_choose - 1].object[rub_choose - 1])  
-                    del passengers[passenger_choose - 1].object[rub_choose - 1]
-                else:
-                    print('The passenger's association is:', associations_map[passengers[passenger_choose - 1].association])
-                    print('The passenger's profession is:', passengers[passenger_choose - 1].profession)
-                    passengers[turn].check_association(passenger_choose - 1)
-                    passengers[turn].check_profession(passenger_choose - 1)
-            elif (attack < defend):
-                print('Defender WIN! Enjoy your victory!')
-                # This part is for the defender
-                # TODO: the same with the formar
+            passenger_choose = duel_initiate()
+            duel_result = duel(turn, passenger_choose, passengers)
+            if (duel_result == 1):
+                duel_victory(turn, passenger_choose, passengers)
+            elif (duel_result == 2):
+                duel_victory(passenger_choose, turn, passengers)
             else:
-                print('DRAW! The attacker can get a object.')
-                passengers[turn].object.append(objects[-1])
-                objects.pop()
-
+                objects_get(passengers[turn], objects)
+                
         elif (choose == '3'):
             # Proclaim the victory 
             print('Passenger', turn + 1, 'is going to preclaim the victory!')
