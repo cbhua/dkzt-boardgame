@@ -34,7 +34,7 @@ def game_initialization():
     return passengers, associations, professions, objects
 
 
-def show_status(turn, passengers):
+def status_show(turn, passengers):
     status_table = PrettyTable()
     status_table.title = 'Status for Passengers'
     status_table.field_names = ['Passenger', 'Association', 'Profession', 'Number of objects']
@@ -168,6 +168,36 @@ def duel_victory(duel_winner, duel_losser, passengers):
         del passengers[duel_losser].object[object_choose]
 
 
+def victory_initiate():
+    print('You are going to proclaim the victory. Which type of victory do you want to proclaim? [1 - Positive Victory; 2 - Negative Victory]')
+    victory_type = int(input())
+    return victory_type
+
+
+def victory_check(victory_association, passengers, associations):
+    print('Choose passengers you think they will win. [Passengers index without split]')
+    victory_passengers = input()
+    for i in range(len(victory_passengers)):
+        i = int(i)
+        if passengers[i].association != victory_association:
+            print('FALIED TO PRECLIME THE SUCCESS! THE PASSENGER {} IS IN YOUR ASSOCIATION!'.format(i))
+            return False
+        if (victory_association == 0):
+            ralics += passengers[i].object.count(SecretBagKey())
+        else:
+            ralics += passengers[i].object.count(SecretBagGoblet())
+    if (victory_association != associations[5]):
+        if (ralics >= 3):
+            return True
+        else:
+            return False
+    else:
+        if (ralics >= 2):
+            return True
+        else:
+            return False
+
+
 def main():
     num_round = 0
     victory = False
@@ -178,7 +208,7 @@ def main():
         turn = num_round % 5
         print('Now is the turn for Passenger', (turn + 1))
 
-        show_status(turn, passengers)
+        status_show(turn, passengers)
         objects_show(passengers[turn])
 
         print('What are you going to do? [1 - Trade; 2 - Duel; 3 - Proclaim the victory; 0 - Skip]')
@@ -205,70 +235,22 @@ def main():
                 objects_get(passengers[turn], objects)
                 
         elif (choose == '3'):
-            # Proclaim the victory 
-            print('Passenger', turn + 1, 'is going to preclaim the victory!')
-
-            # This part is for the passenger turn
-            print('Which type of victory do you want to preclaim? [0 - Positive victory; 1 - Negative victory]')
-            victory_choose = int(input())
+            victory_choose = victory_initiate()
             if (victory_choose == 1):
-                # Negative victory
-                print('Choose passengers you think they will win: [ index without split ]')
-                win_passengers = input()
-                
-                ralics = 0
-                for i in range(len(win_passengers)):
-                    i = int(i)
-                    if passengers[win_passengers[i]].association == passengers[turn].association:
-                        print('FALIED TO PRECLIME THE SUCCESS! THE PASSENGER', i+1, 'IS IN YOUR ASSOCIATION!')
-                        print('THE ASSOCIATION', associations_map[passengers[turn].association], 'LOST!')
-                        break
-                    if (passengers[turn].association == 0):
-                        ralics += passengers[win_passengers[i]].object.count(SecretBagKey())
-                    else:
-                        ralics += passengers[win_passengers[i]].object.count(SecretBagGoblet())
-                if (passengers[turn].association == associations[5]):
-                    if (ralics >= 3):
-                        print('SUCCESS TO PRECLIME THE SUCCESS! THE ASSOCIATION', associations_map[passengers[turn].association], 'WIN!')
-                    else:
-                        print('FAILED TO PRECLIME THE SUCCESS! THE ASSOCIATION', associations_map[passengers[turn].association], 'LOST!')
-                else:
-                    if (ralics >= 2):
-                        print('SUCCESS TO PRECLIME THE SUCCESS! THE ASSOCIATION', associations_map[passengers[turn].association], 'WIN!')
-                    else:
-                        print('FAILED TO PRECLIME THE SUCCESS! THE ASSOCIATION', associations_map[passengers[turn].association], 'LOST!')
+                victory_result = victory_check(passengers[turn].association, passengers, associations)
             else:
-                # Positive victory
-                print('Choose passengers you think they will be your partner: [ index without split ]')
-                win_passengers = input()
-
-                ralics = 0
-                for i in range(len(win_passengers)):
-                    i = int(i)
-                    if passengers[win_passengers[i]].association != passengers[turn].association:
-                        print('FALIED TO PRECLIME THE SUCCESS! THE PASSENGER', i+1, 'IS NOT YOUR ASSOCIATION!')
-                        print('THE ASSOCIATION', associations_map[passengers[turn].association], 'LOST!')
-                        break
-                    if (passengers[turn].association == 0):
-                        ralics += passengers[win_passengers[i]].object.count(SecretBagGoblet())
-                    else:
-                        ralics += passengers[win_passengers[i]].object.count(SecretBagKey())
-                if (passengers[turn].association == associations[5]):
-                    if (ralics >= 2):
-                        print('SUCCESS TO PRECLIME THE SUCCESS! THE ASSOCIATION', associations_map[passengers[turn].association], 'WIN!')
-                    else:
-                        print('FAILED TO PRECLIME THE SUCCESS! THE ASSOCIATION', associations_map[passengers[turn].association], 'LOST!')
-                else:
-                    if (ralics >= 3):
-                        print('SUCCESS TO PRECLIME THE SUCCESS! THE ASSOCIATION', associations_map[passengers[turn].association], 'WIN!')
-                    else:
-                        print('FAILED TO PRECLIME THE SUCCESS! THE ASSOCIATION', associations_map[passengers[turn].association], 'LOST!')
+                victory_result = victory_check(~passengers[turn].association, passengers, associations)
+            if (victory_result):
+                print('You Win')
+                return
+            else:
+                print('You Loss')
+                return
 
         else:
             pass
 
         num_round += 1
 
-#TODO: exchange function
-#TODO: rob function
+
 main()
